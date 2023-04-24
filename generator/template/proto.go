@@ -24,46 +24,24 @@ message CallResponse {
 var ProtoSRV = `syntax = "proto3";
 
 package {{dehyphen .Service}};
+import "google/api/annotations.proto";
 
 option go_package = "./proto;{{dehyphen .Service}}";
 
 service {{title .Service}} {
-	rpc Call(CallRequest) returns (CallResponse) {}
-	rpc ClientStream(stream ClientStreamRequest) returns (ClientStreamResponse) {}
-	rpc ServerStream(ServerStreamRequest) returns (stream ServerStreamResponse) {}
-	rpc BidiStream(stream BidiStreamRequest) returns (stream BidiStreamResponse) {}
+	rpc Call({{title .Service}}Request) returns ({{title .Service}}Response) {
+	option (google.api.http) = {
+      post: "/api/{{title .Service}}"
+    };
+  }
 }
 
-message CallRequest {
+message {{title .Service}}Request {
 	string name = 1;
 }
 
-message CallResponse {
+message {{title .Service}}Response {
 	string msg = 1;
-}
-
-message ClientStreamRequest {
-	int64 stroke = 1;
-}
-
-message ClientStreamResponse {
-	int64 count = 1;
-}
-
-message ServerStreamRequest {
-	int64 count = 1;
-}
-
-message ServerStreamResponse {
-	int64 count = 1;
-}
-
-message BidiStreamRequest {
-	int64 stroke = 1;
-}
-
-message BidiStreamResponse {
-	int64 stroke = 1;
 }
 `
 

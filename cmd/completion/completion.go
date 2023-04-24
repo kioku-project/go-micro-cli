@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"text/template"
 
-	mcli "github.com/go-micro/cli/cmd"
+	mcli "github.com/kioku-project/go-micro-cli/cmd"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )

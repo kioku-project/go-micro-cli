@@ -5,7 +5,7 @@ var Dockerfile = `FROM golang:alpine AS builder
 
 # Set Go env
 ENV CGO_ENABLED=0 GOOS=linux
-WORKDIR /go/src/{{.Service}}{{if .Client}}-client{{end}}
+WORKDIR /go/src/kioku
 
 # Install dependencies
 RUN apk --update --no-cache add ca-certificates gcc libtool make musl-dev protoc git{{if .PrivateRepo}} openssh-client{{end}}
@@ -32,9 +32,14 @@ wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-pro
 chmod +x /bin/grpc_health_probe
 {{end}}
 # Build Go binary
-COPY {{if not .Client}}Makefile {{end}}go.mod go.sum ./
-RUN {{if .PrivateRepo}}--mount=type=ssh {{end}}{{if .Buildkit}}--mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}{{if not .Client}}make init && {{end}}go mod download 
-COPY . .
+COPY {{if not .Client}}services/{{lower .Service}}/Makefile {{end}}go.mod go.sum ./
+RUN go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
+RUN {{if .PrivateRepo}}--mount=type=ssh {{end}}{{if .Buildkit}}--mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}{{if not .Client}}make init && {{end}}
+COPY services/{{lower .Service}}/ services/{{lower .Service}}
+COPY store/ store/
+COPY pkg/ pkg/
+COPY googleapis/ googleapis/
+WORKDIR /go/src/kioku/services/{{lower .Service}}
 RUN {{if .Buildkit}}--mount=type=cache,target=/root/.cache/go-build --mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}make {{if not .Client}}proto {{end}}tidy build
 
 # Deployment container
@@ -44,7 +49,7 @@ COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 {{- if .Health}}
 COPY --from=builder /bin/grpc_health_probe /bin/
 {{- end}}
-COPY --from=builder /go/src/{{.Service}}{{if .Client}}-client{{end}}/{{.Service}}{{if .Client}}-client{{end}} /{{.Service}}{{if .Client}}-client{{end}}
+COPY --from=builder /go/src/kioku/services/{{lower .Service}}{{if .Client}}-client{{end}}/{{.Service}}{{if .Client}}-client{{end}} /{{.Service}}{{if .Client}}-client{{end}}
 ENTRYPOINT ["/{{.Service}}{{if .Client}}-client{{end}}"]
 CMD []
 `

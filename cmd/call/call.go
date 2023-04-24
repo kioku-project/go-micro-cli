@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	mcli "github.com/kioku-project/go-micro-cli/cmd"
 	"github.com/urfave/cli/v2"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/client"
-	mcli "github.com/go-micro/cli/cmd"
 )
 
 func init() {

@@ -109,8 +109,9 @@ import (
 	"sync"
 {{- end}}
 
-	"{{.Vendor}}{{.Service}}/handler"
-	pb "{{.Vendor}}{{.Service}}/proto"
+	"{{.Vendor}}services/{{.Service}}/handler"
+	"github.com/kioku-project/kioku/store"
+	pb "{{.Vendor}}services/{{.Service}}/proto"
 
 {{if .Jaeger}}	ot "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 {{end}}	"go-micro.dev/v4"
@@ -131,6 +132,10 @@ var (
 	version = "latest"
 )
 
+const (
+    servicePort = ":8080" // You can change this to your desired port
+)
+
 func main() {
 {{if .Jaeger}}	// Create tracer
 	tracer, closer, err := jaeger.NewTracer(
@@ -146,11 +151,21 @@ func main() {
 	wg := sync.WaitGroup{}
 	ctx, cancel := context.WithCancel(context.Background())
 {{- end }}
+{{end}}
 
-{{end}}	// Create service
+	// Initialize the database connection
+	dbStore, err := store.NewPostgresStore()
+	if err != nil {
+		logger.Fatal("Failed to initialize database:", err)
+	}
+
+	// Create a new instance of the service handler with the initialized database connection
+	svc := handler.New(dbStore)
+
+	// Create service
 	srv := micro.NewService(
 {{- if .GRPC}}
-		micro.Server(grpcs.NewServer()),
+		micro.Server(grpcs.NewServer(server.Address(servicePort))),
 		micro.Client(grpcc.NewClient()),
 {{- end}}
 {{- if .Advanced}}
@@ -186,7 +201,7 @@ func main() {
 {{- end}}
 
 	// Register handler
-	if err := pb.Register{{title .Service}}Handler(srv.Server(), new(handler.{{title .Service}})); err != nil {
+	if err := pb.Register{{title .Service}}Handler(srv.Server(), svc); err != nil {
 		logger.Fatal(err)
 	}
 {{- if .Health}}

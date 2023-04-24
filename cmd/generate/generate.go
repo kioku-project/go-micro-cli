@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	mcli "github.com/go-micro/cli/cmd"
-	"github.com/go-micro/cli/generator"
-	tmpl "github.com/go-micro/cli/generator/template"
+	mcli "github.com/kioku-project/go-micro-cli/cmd"
+	"github.com/kioku-project/go-micro-cli/generator"
+	tmpl "github.com/kioku-project/go-micro-cli/generator/template"
 	"github.com/urfave/cli/v2"
 )
 

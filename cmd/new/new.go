@@ -3,17 +3,16 @@ package new
 import (
 	"bytes"
 	"fmt"
+	"github.com/urfave/cli/v2"
 	"os"
 	"path"
 	"strings"
 	"text/template"
 
+	mcli "github.com/kioku-project/go-micro-cli/cmd"
+	"github.com/kioku-project/go-micro-cli/generator"
+	tmpl "github.com/kioku-project/go-micro-cli/generator/template"
 	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
-
-	mcli "github.com/go-micro/cli/cmd"
-	"github.com/go-micro/cli/generator"
-	tmpl "github.com/go-micro/cli/generator/template"
 )
 
 var flags []cli.Flag = []cli.Flag{
@@ -173,7 +172,7 @@ func createProject(ctx *cli.Context, pt string) error {
 		{Path: ".gitignore", Template: tmpl.GitIgnore},
 		{Path: "Dockerfile", Template: tmpl.Dockerfile},
 		{Path: "Makefile", Template: tmpl.Makefile},
-		{Path: "go.mod", Template: tmpl.Module},
+		//{Path: "go.mod", Template: tmpl.Module},
 	}
 
 	switch pt {
