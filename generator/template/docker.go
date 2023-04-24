@@ -8,7 +8,7 @@ ENV CGO_ENABLED=0 GOOS=linux
 WORKDIR /go/src/kioku
 
 # Install dependencies
-RUN apk --update --no-cache add ca-certificates gcc libtool make musl-dev protoc git{{if .PrivateRepo}} openssh-client{{end}}
+RUN apk --update --no-cache add ca-certificates gcc libtool make musl-dev protoc git{{if .PrivateRepo}} openssh-client{{end}} protobuf-dev
 {{- if .PrivateRepo}}
 {{if ne .Vendor ""}}
 # Env config for private repo
