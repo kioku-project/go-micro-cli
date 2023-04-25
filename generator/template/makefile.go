@@ -40,7 +40,7 @@ test:
 
 .PHONY: docker
 docker:
-	@{{if .Buildkit}}DOCKER_BUILDKIT=1 {{end}}docker build -t backend/services{{.Service}}{{if .Client}}-client{{end}}:latest --file Dockerfile ../../ {{if .PrivateRepo}}--ssh=default {{end}}.
+	@{{if .Buildkit}}DOCKER_BUILDKIT=1 {{end}}docker build -t backend/services/{{.Service}}{{if .Client}}-client{{end}}:latest --file Dockerfile ../../. {{if .PrivateRepo}}--ssh=default {{end}}.
 
 {{- if .Sqlc}}
 
