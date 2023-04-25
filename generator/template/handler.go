@@ -25,15 +25,15 @@ var HandlerSRV = `package handler
 
 import (
 	"context"
-	"io"
-	"time"
-
 	"go-micro.dev/v4/logger"
 
 	pb "{{.Vendor}}{{.Service}}/proto"
+	"github.com/kioku-project/kioku/store"
 )
 
-type {{title .Service}} struct{}
+type {{title .Service}} struct{store store.Store}
+
+func New(s store.Store) *{{title .Service}} { return &{{title .Service}}{store: s} }
 
 func (e *{{title .Service}}) Call(ctx context.Context, req *pb.{{title .Service}}Request, rsp *pb.{{title .Service}}Response) error {
 	logger.Infof("Received {{title .Service}}.Call request: %v", req)

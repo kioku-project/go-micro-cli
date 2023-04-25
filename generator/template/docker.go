@@ -33,8 +33,7 @@ chmod +x /bin/grpc_health_probe
 {{end}}
 # Build Go binary
 COPY {{if not .Client}}services/{{lower .Service}}/Makefile {{end}}go.mod go.sum ./
-RUN go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
-RUN {{if .PrivateRepo}}--mount=type=ssh {{end}}{{if .Buildkit}}--mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}{{if not .Client}}make init && {{end}}
+RUN {{if .PrivateRepo}}--mount=type=ssh {{end}}{{if .Buildkit}}--mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}{{if not .Client}}make init && go mod download {{end}}
 COPY services/{{lower .Service}}/ services/{{lower .Service}}
 COPY store/ store/
 COPY pkg/ pkg/

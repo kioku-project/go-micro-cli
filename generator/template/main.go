@@ -108,10 +108,11 @@ import (
 	"context"
 	"sync"
 {{- end}}
+	"go-micro.dev/v4/server"
 
-	"{{.Vendor}}services/{{.Service}}/handler"
+	"{{.Vendor}}{{.Service}}/handler"
 	"github.com/kioku-project/kioku/store"
-	pb "{{.Vendor}}services/{{.Service}}/proto"
+	pb "{{.Vendor}}{{.Service}}/proto"
 
 {{if .Jaeger}}	ot "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 {{end}}	"go-micro.dev/v4"
