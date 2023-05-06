@@ -3,6 +3,9 @@ package template
 // Dockerfile is the Dockerfile template used for new projects.
 var Dockerfile = `FROM golang:alpine AS builder
 
+RUN addgroup -S kioku \
+    && adduser -S kioku -G kioku
+
 # Set Go env
 ENV CGO_ENABLED=0 GOOS=linux
 WORKDIR /go/src/kioku
@@ -37,12 +40,13 @@ RUN {{if .PrivateRepo}}--mount=type=ssh {{end}}{{if .Buildkit}}--mount=type=cach
 COPY services/{{lower .Service}}/ services/{{lower .Service}}
 COPY store/ store/
 COPY pkg/ pkg/
-COPY googleapis/ googleapis/
 WORKDIR /go/src/kioku/services/{{lower .Service}}
 RUN {{if .Buildkit}}--mount=type=cache,target=/root/.cache/go-build --mount=type=cache,mode=0755,target=/go/pkg/mod {{end}}make {{if not .Client}}proto {{end}}tidy build
 
 # Deployment container
 FROM scratch
+COPY --from=builder /etc/passwd /etc/passwd
+USER kioku
 
 COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 {{- if .Health}}

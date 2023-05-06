@@ -17,7 +17,7 @@ init:
 
 .PHONY: proto
 proto:
-	@protoc --proto_path=. -I../../googleapis --include_imports --micro_out=. --go_out=:. --descriptor_set_out=proto/{{.Service}}.pb proto/{{.Service}}.proto
+	@protoc --proto_path=. --micro_out=. --go_out=:. proto/{{.Service}}.proto
 	{{- if .Health}}
 	@protoc --proto_path=. --micro_out=. --go_out=:. proto/health.proto
 	{{end}}
@@ -40,7 +40,7 @@ test:
 
 .PHONY: docker
 docker:
-	@{{if .Buildkit}}DOCKER_BUILDKIT=1 {{end}}docker build -t backend/services/{{.Service}}{{if .Client}}-client{{end}}:latest --file Dockerfile ../../. {{if .PrivateRepo}}--ssh=default {{end}}.
+	@{{if .Buildkit}}DOCKER_BUILDKIT=1 {{end}}docker build -t backend/services/{{.Service}}{{if .Client}}-client{{end}}:latest --file Dockerfile ../../. {{if .PrivateRepo}}--ssh=default {{end}}
 
 {{- if .Sqlc}}
 

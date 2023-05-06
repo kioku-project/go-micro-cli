@@ -104,6 +104,8 @@ func main() {
 var MainSRV = `package main
 
 import (
+	"fmt"
+	"os"
 {{- if .Advanced}}
 	"context"
 	"sync"
@@ -123,18 +125,17 @@ import (
 
 	"github.com/go-micro/cli/debug/trace/jaeger"{{end}}
 {{if .GRPC}}
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+
 	grpcc "github.com/go-micro/plugins/v4/client/grpc"
 	grpcs "github.com/go-micro/plugins/v4/server/grpc"
 {{- end}}
 )
 
 var (
-	service = "{{lower .Service}}"
-	version = "latest"
-)
-
-const (
-    servicePort = ":8080" // You can change this to your desired port
+	service        = "{{lower .Service}}"
+	version        = "latest"
+	serviceAddress = fmt.Sprintf("%s%s", os.Getenv("HOSTNAME"), ":8080")
 )
 
 func main() {
@@ -160,13 +161,12 @@ func main() {
 		logger.Fatal("Failed to initialize database:", err)
 	}
 
-	// Create a new instance of the service handler with the initialized database connection
-	svc := handler.New(dbStore)
+	logger.Info("Trying to listen on: ", serviceAddress)
 
 	// Create service
 	srv := micro.NewService(
 {{- if .GRPC}}
-		micro.Server(grpcs.NewServer(server.Address(servicePort))),
+		micro.Server(grpcs.NewServer(server.Address(serviceAddress))),
 		micro.Client(grpcc.NewClient()),
 {{- end}}
 {{- if .Advanced}}
@@ -192,6 +192,7 @@ func main() {
 	srv.Init(
 		micro.Name(service),
 		micro.Version(version),
+		micro.Address(serviceAddress),
 	)
 {{- if .Advanced}}
 	srv.Server().Init(
@@ -200,6 +201,9 @@ func main() {
 
 	ctx = server.NewContext(ctx, srv.Server())
 {{- end}}
+
+	// Create a new instance of the service handler with the initialized database connection
+	svc := handler.New(dbStore)
 
 	// Register handler
 	if err := pb.Register{{title .Service}}Handler(srv.Server(), svc); err != nil {

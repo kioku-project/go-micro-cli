@@ -24,16 +24,11 @@ message CallResponse {
 var ProtoSRV = `syntax = "proto3";
 
 package {{dehyphen .Service}};
-import "google/api/annotations.proto";
 
 option go_package = "./proto;{{dehyphen .Service}}";
 
 service {{title .Service}} {
-	rpc Call({{title .Service}}Request) returns ({{title .Service}}Response) {
-	option (google.api.http) = {
-      post: "/api/{{title .Service}}"
-    };
-  }
+	rpc Call({{title .Service}}Request) returns ({{title .Service}}Response) {}
 }
 
 message {{title .Service}}Request {
